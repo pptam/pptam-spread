@@ -1,0 +1,157 @@
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\begin{document}
+\title{Report - 100 users}
+\maketitle
+Throughput Best configuration \par
+Attack \par
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Throughput.pdf}
+\end{figure}
+No attack 
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Throughput.pdf}
+\end{figure}
+
+\break
+Response Time Best configuration \par
+Attack\par
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/ResponseTimesseconds.pdf}
+\end{figure}
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/ResponseTimesseconds.pdf}
+\end{figure}
+
+\break
+Throughput Worst configuration \par
+Attack 
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Throughput.pdf}
+\end{figure}
+
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/Throughput.pdf}
+\end{figure}
+
+\break
+Response Times Worst configuration \par
+Attack 
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/ResponseTimesseconds.pdf}
+\end{figure}
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/ResponseTimesseconds.pdf}
+\end{figure}
+
+\break
+After removing no getCart and login:\par
+
+Throughput Best configuration \par
+Attack \par
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Throughput_reduced_.pdf}
+\end{figure}
+No attack 
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Throughput_reduced_.pdf}
+\end{figure}
+
+\break
+Response Times Best configuration \par
+Attack\par
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/ResponseTimesseconds_reduced_.pdf}
+\end{figure}
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/ResponseTimesseconds_reduced_.pdf}
+\end{figure}
+
+\break
+Throughput Worst configuration \par
+Attack 
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Throughput_reduced_.pdf}
+\end{figure}
+
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/Throughput_reduced_.pdf}
+\end{figure}
+
+\break
+Response Times Worst configuration \par
+Attack 
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/ResponseTimesseconds_reduced_.pdf}
+\end{figure}
+No attack
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/ResponseTimesseconds_reduced_.pdf}
+\end{figure}
+
+\break
+Mean of series\par
+Best configuration \par
+\textit{Throughput increases whereas Response time decreases with an attack}
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Table.pdf}
+\caption{Attack}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Table.pdf}
+\caption{No attack}
+\end{subfigure}
+\end{figure}
+
+\break
+Worst configuration \par
+\textit{Throughput increases whereas Response time decreases with an attack}
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Table.pdf}
+\caption{Attack}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/Table.pdf}
+\caption{No attack}
+\end{subfigure}
+\end{figure}
+
+\break
+After removing  getCart and login:\par
+Best configuration\par
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/TableReduced.pdf}
+\caption{Attack}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/TableReduced.pdf}
+\caption{No attack}
+\end{subfigure}
+\end{figure}
+\break
+Worst configuration \par
+\begin{figure}[h]
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/TableReduced.pdf}
+\caption{Attack}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+\includegraphics[width=\textwidth, trim={0 0 240 0}, clip]{/Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/TableReduced.pdf}
+\caption{No attack}
+\end{subfigure}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,12 @@
+name: PPTAM_EXT
+title: PPTAM_EXT
+username:
+account: pptam
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1106713
+bundleId: 2548326
+url: https://pptam.shinyapps.io/PPTAM_EXT/
+when: 1572366326.79632
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,0 +1,813 @@
+myList[[i-2]][rowSums(is.na(myList[[i-2]])) != ncol(myList[[i-2]]),]
+rowSums(is.na(myList[[i-2]])) != ncol(myList[[i-2]])
+myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), ".csv", sep="")#
+experimentfilePath<-file.path(originalDirectory, datasetsFolder, fileName)#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),][!apply(myList[[i-2]] == "", 1, all),]
+myList[[i-2]]
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), ".csv", sep="")#
+experimentfilePath<-file.path(originalDirectory, datasetsFolder, fileName)#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]
+myList[[i-2]]
+write.csv(myList[[i-2]],file= experimentfilePath)
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), ".csv", sep="")#
+experimentfilePath<-file.path(originalDirectory, datasetsFolder, fileFolder, fileName)#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+#
+write.csv(myList[[i-2]],file= experimentfilePath)
+experimentfilePath<-file.path(originalDirectory, datasetsFolder, fileFolder, fileName, ".csv")
+experimentfilePath
+experimentfilePath<-paste(originalDirectory, datasetsFolder, fileFolder, fileName, ".csv", sep="")
+experimentfilePath<-paste(originalDirectory, datasetsFolder, fileFolder, fileName, ".csv", sep="")
+experimentfilePath
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+experimentfilePath<-paste(originalDirectory, datasetsFolder, fileFolder, fileName, ".csv", sep="")
+experimentfilePath
+fileName
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+experimentfilePath<-paste(originalDirectory, datasetsFolder, fileFolder, fileName, ".csv", sep="")#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]
+experimentfilePath
+experimentfilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder), fileName, ".csv", sep="")
+experimentfilePath
+for(i in 3:numberOfVariables){	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()
+}
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)
+max_vector
+max_vector<-c()#
+for(s in 2:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)
+s=19
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)
+max_temp
+(length(names)-1)
+length(names)
+names
+myList<-list()#
+for(i in 3:numberOfVariables){	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names[-2]
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names[-2]
+myList[[i-2]]
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names[-2]#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")#
+#
+#save dataset each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)
+s
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]
+names
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")#
+#
+#save dataset each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}
+max_y<-max(max_vector, na.rm=TRUE)
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()
+fileFolder
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")
+plotFilePath
+fileName
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")
+fileName
+myList[[i-2]][1,-1])
+myList[[i-2]][1,-1])
+(myList[[i-2]][1,-1])
+myList<-list()#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names
+myList<-list()
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")
+fileName
+temp<-file.path(originalDirectory, datasetsFolder, fileFolder)#
+experimentfilePath<-paste(temp, fileName, ".csv", sep="")#
+plotFilePath<-paste(temp, fileName, ".pdf", sep="")
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()
+plotFilePath
+experimentFolders
+fileFolder
+experimentfilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder), fileName, ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder), fileName, ".pdf", sep="")
+experimentfilePath
+datasetsFolder
+experimentfilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, fileName), ".pdf", sep="")
+experimentfilePath
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()
+library(ggplot2)#
+#clean console variables#
+rm(list=ls())#
+#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+print(folders)#
+#with no attack#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+experimentFolders<-list.files(path=originalDataFolder)#
+fileFolder<-subset(experimentFolders, experimentFolders=="NoAttack" )#
+#folder<-subset(experimentFolders, experimentFolders =="Attack" )#
+myFiles <-list.files(path= fileFolder)#
+dataset<- read.csv(file.path(originalDataFolder, fileFolder, "BestConfiguration.csv"), header=T, sep=",")#
+#dataset<- read.csv(file.path(originalDataFolder, fileFolder, "WorstConfiguration.csv"), header=T, sep=",")#
+#it splits the original Benchflow dataset in subset each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#Variables names#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#
+library(stringr)#
+#
+myList<-list()#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-#
+experimentfilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, fileName), ".pdf", sep="")#
+#
+#save dataset each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()#
+}
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)
+folders
+getwd()
+file.path(getwd(),"AvgDataSets")
+list.files(path= dataFileFolder)
+dataFileFolder<-red.csv(file.path(getwd(),"AvgDataSets"))
+dataFileFolder<-file.path(getwd(),"AvgDataSets")
+list.files(path= dataFileFolder)
+avgFiles<-list.files(path= dataFileFolder)
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")
+avgFiles[2]
+setwd(dataFileFolder)
+avgFiles<-list.files(path= dataFileFolder)
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")
+source("computeThreshold.R")
+library(rprojroot)
+package(rprojroot)
+import(rprojroot)
+install.packages("rprojroot")
+library(rprojroot)
+avgFiles
+dir(find_root(has_file("benchflow_output_NoM.csv")))
+dir(find_root(has_file("computeThreshold.R")))
+getwd()
+setwd(originalDirectory)
+dir(find_root(has_file("computeThreshold.R")))
+dataFileFolder
+find.file("computeThreshold.R", dir = originaDirectory, dirs = NULL)"computeThreshold.R")))
+originaDirectory
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)"computeThreshold.R")))
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)
+install.packages("reader")
+library("reader")
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)
+originalDirectory
+#probability of success of failing component to work#
+p2<-0.2#
+#probability of success of working component to fail#
+p1<-0.4#
+#
+#Opposite probability#
+q1<-1-p1#
+q2<-1-p2#
+#
+#number of trials n#
+#number of successes k#
+binprobab<-function(n,k,p){#
+	q<-1-p#
+	t<-choose(n,k)*p^k*q^(n-k)#
+	return(t)#
+}#
+C0<-c(binprobab(2,0,p2),binprobab(2,1,p2),binprobab(2,2,p2))#
+# #0 today,0 tomorrow: 2 failures#
+# n<-2
+P<-matrix(c(C0,C1,C2), nrow=3, ncol=3)#
+sumP<-sum(t(P)[1,])#
+library(xtable)#
+x <- xtable(t(P))#
+print(x, floating=FALSE, tabular.environment="bmatrix", hline.after=NULL, include.rownames=FALSE, include.colnames=FALSE)#
+#After two steps#
+P2<-t(P)%*%t(P)#
+#
+#Exercise 4 was on binomial distribution #
+dbinom(6,6,0.25)+dbinom(5,6,0.25)+dbinom(4,6,0.25)+dbinom(3,6,0.25)+dbinom(2,6,0.25)+dbinom(1,6,0.25)+dbinom(0,6,0.25)
+#probability of success of failing component to work#
+p2<-0.2#
+#probability of success of working component to fail#
+p1<-0.4#
+#
+#Opposite probability#
+q1<-1-p1#
+q2<-1-p2#
+#
+#number of trials n#
+#number of successes k#
+binprobab<-function(n,k,p){#
+	q<-1-p#
+	t<-choose(n,k)*p^k*q^(n-k)#
+	return(t)#
+}#
+C0<-c(binprobab(2,0,p2),binprobab(2,1,p2),binprobab(2,2,p2))#
+# #0 today,0 tomorrow: 2 failures#
+# n<-2 #
+# k<-0 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+# #0 today, 1 tomorrow: 1 failure #
+# n<-2 #
+# k<-1 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+# #0 today, 2 tomorrow: no failure#
+# n<-2 #
+# k<-2 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+C1<-c(p1*q2,p1*p2+q1*q2, q1*p2)#
+# #1 today, 0 tomorrow: 2 failures#
+# myProb<-p1*q2#
+# print(myProb)#
+# #1 today, 1 tomorrow: 1 failure#
+# myProb<-p1*p2+q1*q2#
+# print(myProb)#
+# #1 today, 2 tomorrow: no failure#
+# myProb<-q1*p2#
+# print(myProb)#
+C2<-c(binprobab(2,2,p1),binprobab(2,1,p1),binprobab(2,0,p1))#
+# #2 today, 0 tomorrow: 2 failure#
+# n<-2 #
+# k<-2 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+# #2 today, 1 tomorrow: 1 failure#
+# n<-2 #
+# k<-1 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+# #2 today, 2 tomorrow: no failure#
+# n<-2 #
+# k<-0 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+#
+P<-matrix(c(C0,C1,C2), nrow=3, ncol=3)#
+sumP<-sum(t(P)[1,])#
+library(xtable)#
+x <- xtable(t(P))#
+print(x, floating=FALSE, tabular.environment="bmatrix", hline.after=NULL, include.rownames=FALSE, include.colnames=FALSE)#
+#After two steps#
+P2<-t(P)%*%t(P)#
+#
+#Exercise 4 was on binomial distribution #
+dbinom(6,6,0.25)+dbinom(5,6,0.25)+dbinom(4,6,0.25)+dbinom(3,6,0.25)+dbinom(2,6,0.25)+dbinom(1,6,0.25)+dbinom(0,6,0.25)
+library(xtable)
+install.package(xtable)
+install.packages("xtable")
+library(xtable)
+#probability of success of failing component to work#
+p2<-0.2#
+#probability of success of working component to fail#
+p1<-0.4#
+#
+#Opposite probability#
+q1<-1-p1#
+q2<-1-p2#
+#
+#number of trials n#
+#number of successes k#
+binprobab<-function(n,k,p){#
+	q<-1-p#
+	t<-choose(n,k)*p^k*q^(n-k)#
+	return(t)#
+}#
+C0<-c(binprobab(2,0,p2),binprobab(2,1,p2),binprobab(2,2,p2))#
+# #0 today,0 tomorrow: 2 failures#
+# n<-2 #
+# k<-0 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+# #0 today, 1 tomorrow: 1 failure #
+# n<-2 #
+# k<-1 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+# #0 today, 2 tomorrow: no failure#
+# n<-2 #
+# k<-2 #
+# myProb<-binprobab(n,k,p2)#
+# print(myProb)#
+C1<-c(p1*q2,p1*p2+q1*q2, q1*p2)#
+# #1 today, 0 tomorrow: 2 failures#
+# myProb<-p1*q2#
+# print(myProb)#
+# #1 today, 1 tomorrow: 1 failure#
+# myProb<-p1*p2+q1*q2#
+# print(myProb)#
+# #1 today, 2 tomorrow: no failure#
+# myProb<-q1*p2#
+# print(myProb)#
+C2<-c(binprobab(2,2,p1),binprobab(2,1,p1),binprobab(2,0,p1))#
+# #2 today, 0 tomorrow: 2 failure#
+# n<-2 #
+# k<-2 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+# #2 today, 1 tomorrow: 1 failure#
+# n<-2 #
+# k<-1 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+# #2 today, 2 tomorrow: no failure#
+# n<-2 #
+# k<-0 #
+# myProb<-binprobab(n,k,p1)#
+# print(myProb)#
+#
+P<-matrix(c(C0,C1,C2), nrow=3, ncol=3)#
+sumP<-sum(t(P)[1,])#
+library(xtable)#
+x <- xtable(t(P))#
+print(x, floating=FALSE, tabular.environment="bmatrix", hline.after=NULL, include.rownames=FALSE, include.colnames=FALSE)#
+#After two steps#
+P2<-t(P)%*%t(P)#
+#
+#Exercise 4 was on binomial distribution #
+dbinom(6,6,0.25)+dbinom(5,6,0.25)+dbinom(4,6,0.25)+dbinom(3,6,0.25)+dbinom(2,6,0.25)+dbinom(1,6,0.25)+dbinom(0,6,0.25)
+factorial(k)
+integrate(2*t, lower=1, upper=3)
+integrand <- function(x) {2*x}
+integrate(integrand, lower=1, upper=3)
+integrand <- function(x) {3*x}
+integrate(integrand, lower=1, upper=3)
+integrand <- function(x) {7*x}
+integrate(integrand, lower=1, upper=3)
+integrate(integrand, lower=1, upper=5)
+integrand <- function(x) {a*x}
+integrate(integrand, lower=1, upper=5)
+integrand <- function(a,x) {a*x}
+integrate(integrand(2), lower=1, upper=5)
+integral<-function(a){
+integral<-function(a){#
+	function(a,x) {a*x}#
+	}
+integral<-function(a){#
+	function(a,x) {a*x}#
+	}
+integrand<-integral(3)
+integrate(integrand, lower=1, upper=5)
+integrand
+integrand<-integral(3,x)
+integrand<-integral(3)
+integrand
+integral<-function(a){#
+	a*x#
+	}
+integral
+integrand<-integral(3)
+integrand
+integrand<-integral(3)#
+#
+integral<-function(a){#
+	a*x#
+	}
+integrand<-integral(3)
+integrand
+integrate(integrand, lower=1, upper=5)
+rm(list=ls())
+integrand<-integral(3)
+integral<-function(a){#
+	a*x#
+	}
+integrand<-integral(3)
+integrand <- function(x) {3*x}
+integrate(integrand, lower=1, upper=5)
+integrand <- function(x) {3*x}
+lambda<-integrate(integrand, lower=1, upper=5)
+poissonMass <- function(k){#
+p<-lambda^k*exp(-lambda)/factorial(k)#
+}
+poissonMass(k)
+k=2
+poissonMass(k)
+poissonMass <- function(k){#
+p<-myLambda^k*exp(-myLambda)/factorial(k)#
+}#
+poissonMass(k)
+integrand <- function(x) {3*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+p<-myLambda^k*exp(-myLambda)/factorial(k)#
+}#
+poissonMass(k)
+myLambda
+myLambda^k
+r^4
+12^4
+myLambda^k
+factorial(k)
+k
+exp(-myLambda)
+myLambda
+summary(myLambda)
+myLambda$value
+poissonMass <- function(k){#
+p<-myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+poissonMass(k)
+p
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+integrand <- function(x) {5*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)
+myLambda
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+integrand <- function(x) {1/2*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+integrand <- function(x) {(1/2)*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+integrand <- function(x) {(1/10)*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+k=3
+integrand <- function(x) {(1/10)*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+k=10
+integrand <- function(x) {(1/10)*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+k=5
+integrand <- function(x) {(1/10)*x}#
+myLambda<-integrate(integrand, lower=1, upper=5)#
+poissonMass <- function(k){#
+myLambda$value^k*exp(-myLambda$value)/factorial(k)#
+}#
+poissonMass(k)
+m(list=ls())#
+#
+#change the wd if needed#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+experimentFolders<-list.files(path=originalDataFolder)#
+#
+#with no attack. Uncomment the line  for the different case (Attack or no Attack) #
+#fileFolder<-subset(experimentFolders, experimentFolders=="NoAttack" )#
+fileFolder <-subset(experimentFolders, experimentFolders =="Attack" )
+fileFolder
+myFiles <-list.files(path= fileFolder)#
+dataset<- read.csv(file.path(originalDataFolder, fileFolder, "BestConfiguration.csv"), header=T, sep=",")
+myFiles
+fileFolder
+myFiles <-list.files(path= as.character(fileFolder))
+myFiles
+fileFolder
+rm(list=ls())
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+experimentFolders<-list.files(path=originalDataFolder)
+experimentFolders
+fileFolder<-subset(experimentFolders, experimentFolders=="NoAttack" )
+fileFolder
+myFiles <-list.files(path= as.character(fileFolder))
+myFiles
+as.character(fileFolder)
+dataset<- read.csv(file.path(originalDataFolder, fileFolder, "BestConfiguration.csv"), header=T, sep=",")
+fileFolder
+fileFolder
+fileFolder
+analysisFolder
+myFiles <-list.files(path= as.character(fileFolder), full.names = TRUE)
+myFiles
+getwd()
+list.files(getwd())
+setwd(fileFolder)
+fileFolder
+setwd(paste(originalDataFolder, fileFolder), sep="")
+setwd(paste(originalDataFolder, fileFolder))
+setwd(file.path(originalDataFolder, fileFolder))
+getwd()
+myFiles <-list.files(path= as.character(fileFolder), full.names = TRUE)
+myFiles
+list.files(here)
+here<-setwd(file.path(originalDataFolder, fileFolder))
+list.files(here)
+list.files(getwd())
+list.files(getwd(),full.names = TRUE)
+datasetBC<- read.csv(myFiles[1], header=T, sep=",")
+myFiles[1]
+myFiles <-list.files(getwd(),full.names = TRUE)
+myFiles
+myFiles[1]
+datasetBC<- read.csv(myFiles[1], header=T, sep=",")
+datasetBC
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+library(stringr)
+dataset<- read.csv(myFiles[1], header=T, sep=",")
+Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+library(stringr)
+myList<-list()#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+temp<-#
+#Paths to Datasets and Analyis folders#
+experimentfilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, fileName), ".pdf", sep="")#
+#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= experimentfilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 11, height = 4)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName)#
+#
+for(j in 3:(ncol(myList[[i-2]])-1)){#
+	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+}#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,-0.4))#
+graphics.off()#
+}#
+install.packages("reader")#
+library("reader")#
+dataFileFolder<-file.path(getwd(),"AvgDataSets")#
+setwd(dataFileFolder)#
+#
+avgFiles<-list.files(path= dataFileFolder)#
+#
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)#
+#
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")#
+source("computeThreshold.R")
+myFiles[1]
+analysisFolder
+fileFolder
+fileName
+fileFolder
+mkdir
+?dir
+myFiles <-list.files(getwd(),full.names = TRUE, pattern="^[No]")
+myFiles
+getwd()
+myFiles <-list.files(getwd(),full.names = TRUE, pattern="^No")
+myFiles
+myFiles <-list.files(getwd(),full.names = TRUE, pattern="^[Best]")
+myFiles
+myFiles

@@ -1,0 +1,627 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2014.3.31)  8 JUL 2019 15:38
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**Report.tex
+(./Report.tex
+LaTeX2e <2011/06/27>
+Babel <3.9f> and hyphenation patterns for 78 languages loaded.
+(/usr/local/texlive/2013/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2013/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/texlive/2013/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/local/texlive/2013/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/local/texlive/2013/texmf-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count87
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(/usr/local/texlive/2013/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2013/02/03 v1.1-62 Sub-captions (AR)
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2013/05/02 v3.3-89 Customizing captions (AR)
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2013/05/02 v1.6-88 caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 57.
+\captionmargin=\dimen105
+\captionmargin@=\dimen106
+\captionwidth=\dimen107
+\caption@tempdima=\dimen108
+\caption@indent=\dimen109
+\caption@parindent=\dimen110
+\caption@hangindent=\dimen111
+)
+\c@ContinuedFloat=\count88
+)
+\c@subfigure=\count89
+\c@subtable=\count90
+)
+(./Report.aux)
+\openout1 = `Report.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+
+(/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count91
+\scratchdimen=\dimen112
+\scratchbox=\box26
+\nofMPsegments=\count92
+\nofMParguments=\count93
+\everyMPshowfont=\toks15
+\MPscratchCnt=\count94
+\MPscratchDim=\dimen113
+\MPnumerator=\count95
+\makeMPintoPDFobject=\count96
+\everyMPtoPDFconversion=\toks16
+) (/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2013/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+))
+(/usr/local/texlive/2013/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/usr/local/texlive/2013/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 6.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 6.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 6.
+
+
+LaTeX Warning: No \author given.
+
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Throug
+hput.pdf, id=1, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/T
+hroughput.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Th
+roughput.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/Throughput.pdf used on input line 10.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Th
+roughput.pdf, id=2, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/Throughput.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/Throughput.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/Throughput.pdf used on input line 14.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [1
+
+{/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map} </Users/
+barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis
+/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Throughput.pdf
+> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperime
+ntAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/
+Throughput.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Respon
+seTimesseconds.pdf, id=25, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/R
+esponseTimesseconds.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Re
+sponseTimesseconds.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/ResponseTimesseconds.pdf used on input line 21.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Re
+sponseTimesseconds.pdf, id=26, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/ResponseTimesseconds.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/ResponseTimesseconds.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/ResponseTimesseconds.pdf used on input line 25.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [2 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Re
+sponseTimesseconds.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/ResponseTimesseconds.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Throug
+hput.pdf, id=44, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/T
+hroughput.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Th
+roughput.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/Throughput.pdf used on input line 33.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/T
+hroughput.pdf, id=45, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/Throughput.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/Throughput.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/Throughput.pdf used on input line 38.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [3 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Th
+roughput.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/Si
+ngleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-10
+0-1.0-0.25-1/Throughput.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Respon
+seTimesseconds.pdf, id=63, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/R
+esponseTimesseconds.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Re
+sponseTimesseconds.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/ResponseTimesseconds.pdf used on input line 46.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/R
+esponseTimesseconds.pdf, id=64, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/ResponseTimesseconds.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/ResponseTimesseconds.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/ResponseTimesseconds.pdf used on input line 50.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [4 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Re
+sponseTimesseconds.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/ResponseTimesseconds.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Throug
+hput_reduced_.pdf, id=82, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/T
+hroughput_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Th
+roughput_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/Throughput_reduced_.pdf used on input line 59.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Th
+roughput_reduced_.pdf, id=83, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/Throughput_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/Throughput_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/Throughput_reduced_.pdf used on input line 63.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [5 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Th
+roughput_reduced_.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microse
+rvices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_No
+Mirai-100-0.5-0.25-2/Throughput_reduced_.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Respon
+seTimesseconds_reduced_.pdf, id=101, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/R
+esponseTimesseconds_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Re
+sponseTimesseconds_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/ResponseTimesseconds_reduced_.pdf used on input line 70.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Re
+sponseTimesseconds_reduced_.pdf, id=102, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/ResponseTimesseconds_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/ResponseTimesseconds_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/ResponseTimesseconds_reduced_.pdf used on input line 74.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [6 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Re
+sponseTimesseconds_reduced_.pdf> </Users/barbaramini/Research/Dropbox/OverleafG
+it/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfig
+uration_NoMirai-100-0.5-0.25-2/ResponseTimesseconds_reduced_.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Throug
+hput_reduced_.pdf, id=120, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/T
+hroughput_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Th
+roughput_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/Throughput_reduced_.pdf used on input line 82.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/T
+hroughput_reduced_.pdf, id=121, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/Throughput_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/Throughput_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/Throughput_reduced_.pdf used on input line 87.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [7 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Th
+roughput_reduced_.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microse
+rvices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_N
+oMirai-100-1.0-0.25-1/Throughput_reduced_.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Respon
+seTimesseconds_reduced_.pdf, id=140, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/R
+esponseTimesseconds_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Re
+sponseTimesseconds_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/ResponseTimesseconds_reduced_.pdf used on input line 95.
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/R
+esponseTimesseconds_reduced_.pdf, id=141, 867.24pt x 433.62pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/ResponseTimesseconds_reduced_.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/ResponseTimesseconds_reduced_.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/ResponseTimesseconds_reduced_.pdf used on input line 99.
+
+(pdftex.def)             Requested size: 345.0pt x 172.49876pt.
+ [8 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Re
+sponseTimesseconds_reduced_.pdf> </Users/barbaramini/Research/Dropbox/OverleafG
+it/Microservices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfi
+guration_NoMirai-100-1.0-0.25-1/ResponseTimesseconds_reduced_.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Table.
+pdf, id=160, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/T
+able.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Ta
+ble.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/Table.pdf used on input line 108.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 110.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 110.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Ta
+ble.pdf, id=162, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/Table.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/Table.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/Table.pdf used on input line 112.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+Overfull \hbox (2.22221pt too wide) in paragraph at lines 107--115
+[]$[]$ $[]$ 
+ []
+
+[9 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperim
+entAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Tab
+le.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleEx
+perimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0
+.25-2/Table.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Table.
+pdf, id=185, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/T
+able.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Ta
+ble.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/Table.pdf used on input line 122.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/T
+able.pdf, id=187, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/Table.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/Table.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/Table.pdf used on input line 126.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+Overfull \hbox (2.22221pt too wide) in paragraph at lines 121--129
+[]$[]$ $[]$ 
+ []
+
+[10 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Ta
+ble.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleE
+xperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0
+-0.25-1/Table.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/TableR
+educed.pdf, id=208, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/T
+ableReduced.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Ta
+bleReduced.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mir
+ai-100-1.0-0.25-2/TableReduced.pdf used on input line 136.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-2/Ta
+bleReduced.pdf, id=210, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25
+-2/TableReduced.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-100-0.5-0.25-
+2/TableReduced.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_N
+oMirai-100-0.5-0.25-2/TableReduced.pdf used on input line 140.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+Overfull \hbox (2.22221pt too wide) in paragraph at lines 135--143
+[]$[]$ $[]$ 
+ []
+
+[11 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/BestConfiguration_Mirai-100-1.0-0.25-2/Ta
+bleReduced.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/
+SingleExperimentAnalysis/100Users/Analysis/NoAttack/BestConfiguration_NoMirai-1
+00-0.5-0.25-2/TableReduced.pdf>]
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/TableR
+educed.pdf, id=231, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/T
+ableReduced.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Ta
+bleReduced.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mi
+rai-100-1.0-0.5-4/TableReduced.pdf used on input line 148.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+</Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperiment
+Analysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25-1/T
+ableReduced.pdf, id=233, 504.88625pt x 504.88625pt>
+File: /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExper
+imentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.2
+5-1/TableReduced.pdf Graphic file (type pdf)
+
+<use /Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-100-1.0-0.25
+-1/TableReduced.pdf>
+Package pdftex.def Info: /Users/barbaramini/Research/Dropbox/OverleafGit/Micros
+ervices/SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_
+NoMirai-100-1.0-0.25-1/TableReduced.pdf used on input line 152.
+(pdftex.def)             Requested size: 172.5pt x 329.91325pt.
+
+Overfull \hbox (2.22221pt too wide) in paragraph at lines 147--155
+[]$[]$ $[]$ 
+ []
+
+[12 </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/SingleExperi
+mentAnalysis/100Users/Analysis/Attack/WorstConfiguration_Mirai-100-1.0-0.5-4/Ta
+bleReduced.pdf> </Users/barbaramini/Research/Dropbox/OverleafGit/Microservices/
+SingleExperimentAnalysis/100Users/Analysis/NoAttack/WorstConfiguration_NoMirai-
+100-1.0-0.25-1/TableReduced.pdf>] (./Report.aux) ) 
+Here is how much of TeX's memory you used:
+ 2692 strings out of 493315
+ 59104 string characters out of 6137904
+ 97657 words of memory out of 5000000
+ 6136 multiletter control sequences out of 15000+600000
+ 7320 words of font info for 26 fonts, out of 8000000 for 9000
+ 957 hyphenation exceptions out of 8191
+ 42i,8n,40p,436b,424s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2013/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2013/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2013/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2013/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2013/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on Report.pdf (12 pages, 585002 bytes).
+PDF statistics:
+ 272 PDF objects out of 1000 (max. 8388607)
+ 195 compressed objects within 2 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 169 words of extra memory for PDF output out of 10000 (max. 10000000)
+

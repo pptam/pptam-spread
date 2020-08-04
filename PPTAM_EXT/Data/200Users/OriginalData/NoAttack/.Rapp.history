@@ -1,0 +1,3764 @@
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Number of Users", "Relative Mass")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ20Min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Number of Users", "Relative Mass")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ5Min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Number of Users", "Relative Mass")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+mix
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ5Min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ20Min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ5Min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZNoMirai.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ5min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ20min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload", "Relative domain metric")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3), cex=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3), cex=2.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=2.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+#graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=2.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()
+graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.5, cex.axis=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=2.5, cex.axis=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+graphics.off()
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=2.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.5)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3))#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.3)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")
+graphics.off()
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ20min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload (number of users)", "Domain metric per workload")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.3)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ5min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload (number of users)", "Domain metric per workload")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.3)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZNoMirai.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}#
+colnames(mySettings)<-colnames(dataFile[,1:5])#
+noMicroServices<-ncol(dataFile)-6#
+#print(mySettings)#
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))#
+#
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))#
+#
+avgVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	avgVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[1+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(avgVectorB)<-c(colnames(dataFile[-6]))#
+SDVector<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	SDVector[i,]<-data.frame(c(mySettings[i+1,],dataFile[2+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(SDVectorB)<-c(colnames(dataFile[-6]))#
+#
+mixTemp<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	mixTemp[i,]<-data.frame(c(mySettings[i+1,],dataFile[3+3*i,7:(6+noMicroServices)]))#
+}#
+colnames(mixTemp)<-c(colnames(dataFile[-6]))#
+#print(mySettings)#
+passCriteria<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(i in 1:(nrow(mySettings)-1)){#
+	passCriteria[i,]<-data.frame(c(mySettings[i+1,],avgVector[i,6:(5+noMicroServices)]))#
+}#
+relativeMass<-c()#
+colnames(passCriteria)<-c(colnames(dataFile[-6]))#
+mix<-as.data.frame(matrix(nrow=nrow(mySettings)-1, ncol=ncol(dataFile)-1))#
+for(j in 1:nrow(passCriteria)){#
+	mix[j,]<-mixTemp[j,]#
+	for(i in 6:(5+noMicroServices)){#
+		if(passCriteria[j,i]>threshold[i]) #
+			mix[j,i]<-0#
+	}#
+	relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])#
+}#
+aggregatedValues<-matrix(c(usersLoadScaled[byFifty], binProb), ncol=2,nrow=6, dimnames=list(c(1,2,3,4,5,6), c("Workload (number of users)", "Domain metric per workload")))#
+finalSettings<-mySettings#
+relativeMass<-c(0, relativeMass)#
+finalSettings$relativeMass<-relativeMass#
+absoluteRelativeMass<-c()#
+for(j in 1:nrow(finalSettings)){	#
+	absoluteRelativeMass[j]<-finalSettings[j,"relativeMass"]*aggregatedValues[match(finalSettings[j,"Users"], aggregatedValues[,1]),2]#
+}#
+absoluteRelativeMass[1]<-0#
+finalSettings$absoluteRelativeMass<-absoluteRelativeMass#
+#
+mySettingsUnique<-unique(mySettings[3:5])#
+set<-list()#
+ordSet<-list()#
+for(i in 1:nrow(mySettingsUnique)){#
+	set[[i]]<-finalSettings[which(finalSettings[,3] == mySettingsUnique[i,1]&finalSettings[,4] == mySettingsUnique[i,2]&finalSettings[,5] == mySettingsUnique[i,3]),]#
+    ordSet[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]#
+}#
+#
+#if(match(mySettingsUnique[2,1],finalSettings[,3])& match(mySettingsUnique[2,2],finalSettings[,4])& match(mySettingsUnique[2,3],finalSettings[,5])){#
+#	match(mySettingsUnique[3,],finalSettings[,3])#
+#}#
+#print(mySettingsUnique)#
+#print(finalSettings)#
+#rgb(.5,.4,.1,.30)#
+#
+plot(aggregatedValues, xlim=c(50, 300), ylim=c(0, 0.3),cex.lab=1.3)#
+polygon(c(50,aggregatedValues[,1],300),c(0,aggregatedValues[,2],0), col="brown", lty = 1, lwd = 2, border = "black")#
+color=heat.colors(11)#
+color_transparent <- adjustcolor(color, alpha.f = 0.2) #
+#
+for(i in 1:nrow(mySettingsUnique)){#
+    lines(ordSet[[i]], type="l", col=heat.colors(11)[i])	#
+    polygon(c(50,t(ordSet[[i]][1]),300),c(0,t(ordSet[[i]][2]),0), col=color_transparent[i], lty = 1, lwd = 1 , border = rainbow(11)[i])#
+}#
+text(aggregatedValues,labels = round(aggregatedValues[1:6,2],3), pos=3, col="black")#
+#graphics.off()#
+#
+#Compute domain metric
+GScholarScraper <- function(search.str, write.table = FALSE){#
+#
+require(Rcpp)#
+require(RCurl)#
+require(stringr)#
+require(tm)#
+require(wordcloud)#
+#
+# Some explanations regarding the search string parameterization:#
+# "&lr?lang_en" will search only publications in English.#
+# "&num=100" will retur 100 results per site, strangely one yields different#
+# numbers of results when changing this parameter.. so I will use num = 100#
+# which will give me the largest number of results.#
+# "&as_vis=1" exculdes citations, in this version of the function I will#
+# exclude these because they may bias the final word frequencies#
+# due to the fact that citations often occurr multiply.#
+# "&hl_en" defines language used on site.#
+# "&as_sdt=1" returns only articles excluding patents.#
+#
+# Get number of search results, making a first input to Google Scholar,#
+# retrieving results 1 to 100 from first result page, and containing the#
+# total no. of results somewhere:#
+url <- paste("http://scholar.google.com/scholar?start=0&q=",#
+   	search.str, "&hl=en&lr=lang_en&num=100&as_sdt=1&as_vis=1",#
+   	sep = "")#
+#
+# ...i’m using urls like: http://scholar.google.com/scholar?start=0&q=allintitle:+amphibians+richness+OR+diversity&hl=en&lr=lang_en&num=100&as_sdt=1&as_vis=1#
+#
+webpage <- getURL(url)#
+html_str <- paste(webpage, collapse="\n")#
+#
+# Find html place holders (2 alternatives!) for number of results,#
+# and pull the number.#
+# (!) Strangely Google Scholar gives different numbers of results#
+# dependent on start value.. i.e., a change from 900 to 980 results#
+# when changing start = 0 to start = 800#
+#
+match_no.res <- str_match(html_str, "Results <b>1</b> - <b>(.*?)</b> of <b>(.*?)</b>")#
+no.res <- match_no.res[1, max(dim(match_no.res))]#
+#
+if(nchar(no.res) == 0 | is.na(no.res) | nchar(gsub("\\d", "", no.res))) {#
+ match_no.res <- str_match(html_str, "Results <b>1</b> - <b>(.*?)</b> of about <b>(.*?)</b>")#
+ no.res <- match_no.res[1, max(dim(match_no.res))]#
+}#
+#
+# Remove punctuation (Google uses decimal commas):#
+no.res <- as.integer(gsub("[[:punct:]]", "", no.res))#
+#
+# If there are no results, stop and throw an error message:#
+if(nchar(no.res) == 0 | is.na(no.res) | nchar(gsub("\\d", "", no.res))) {#
+ stop("\n\n...There is no result for the submitted search string!")}#
+#
+# Define number of pages with results to be used subsequently#
+# pages.max = maximum number of pages (chunk with 100 results each)#
+# to be submitted subsequently.#
+# Above it was said that no.res varies, depending on start value.#
+# However, we use ceiling and the change will very unlikely be greater#
+# than 100, so we may also add one page plus, to be save:#
+pages.max <- ceiling(no.res/100)+1#
+#
+# "start" as used in url:#
+start <- c(100*1:pages.max) - 100#
+#
+# Collect webpages as list:#
+urls <- paste("http://scholar.google.com/scholar?start=", start,#
+       	"&q=", search.str,#
+       	"&hl=en&lr=lang_en&num=100&as_sdt=1&as_vis=1",#
+       	sep = "")#
+#
+webpages <- lapply(urls, getURL)#
+#
+# Paste all content:#
+html_str <- paste(unlist(webpages), collapse="\n")#
+#
+# Pull titles between h3 tags:#
+match_h3 <- str_match_all(html_str, "<h3>(.*?)</h3>")#
+match_h3 <- match_h3[[1]][, 2]#
+#
+# Clean up br-tags:#
+match_h3 <- gsub("<b>", "", match_h3)#
+match_h3 <- gsub("</b>", "", match_h3)#
+#
+# Get id's for different entry types, which have different html-schemes and#
+# hence will have to be treated differently when cleaning up:#
+id_books <- grep("BOOK", match_h3)#
+id_pdfs <- grep("PDF", match_h3)#
+#
+# The rest is articles:#
+id_articles <- c(1:length(match_h3))[c(-id_books, -id_pdfs)]#
+#
+# Check correctness of ids:#
+# should be as many as number of titles#
+# sort(c(id_books, id_pdfs, id_articles)) == 1:length(match_h3)#
+#
+# Get html code for different types of publications#
+books_raw <- match_h3[id_books]#
+articles_raw <- match_h3[id_articles]#
+pdfs_raw <- match_h3[id_pdfs]#
+#
+# Clean up & pull titles:#
+if(length(id_books) > 0){#
+book <- TRUE#
+b.title_str <- strsplit(books_raw, ">")#
+b.titles <- rep(NA, length(b.title_str))#
+for(i in 1:length(b.title_str)){#
+	b.titles[i] <- substring(b.title_str[[i]][4],#
+                     	1, nchar(b.title_str[[i]][4])-3)}#
+} else {#
+	book <- FALSE#
+}#
+#
+if(length(id_articles) > 0){#
+art <- TRUE#
+a.title_str <- strsplit(articles_raw, ">")#
+a.titles <- rep(NA, length(a.title_str))#
+for(i in 1:length(a.title_str)){#
+	a.titles[i] <- substring(a.title_str[[i]][2],#
+                     	1, nchar(a.title_str[[i]][2])-3)}#
+} else {#
+	art <- FALSE#
+}#
+#
+if(length(id_pdfs) > 0){#
+pdf <- TRUE#
+pdf.title_str <- strsplit(pdfs_raw, ">")#
+pdf.titles <- rep(NA, length(pdf.title_str))#
+for(i in 1:length(pdf.title_str)){#
+	pdf.titles[i] <- substring(pdf.title_str[[i]][4],#
+                       	1, nchar(pdf.title_str[[i]][4])-3)}#
+} else {#
+	pdf <- FALSE#
+}#
+#
+# Get links:#
+match_aref <- str_match_all(match_h3, "<a href=\"(.*?)\"")#
+#
+links <- rep(NA, length(match_aref))#
+for(i in 1:length(match_aref)){#
+	if (length(match_aref[[i]][, 2]) == 0)#
+	links[i] <- ""#
+	else (links[i] <- match_aref[[i]][, 2])}#
+#
+# Dataframe with titles and links:#
+result <- data.frame(#
+	ARTICLES = NA, BOOKS = NA,#
+	PDFs = NA, LINKS = links)#
+#
+if(art == TRUE){#
+result[id_articles, "ARTICLES"] <- a.titles#
+}#
+if(book == TRUE){#
+result[id_books, "BOOKS"] <- b.titles#
+}#
+if(pdf == TRUE){#
+result[id_pdfs, "PDFs"] <- pdf.titles#
+}#
+#
+# Optionally write table with results to system default folder:#
+if(write.table){#
+write.table(result, path.expand("~\\GScholarScraper-Result.CSV"),#
+  	row.names = F, sep = ";")#
+}#
+#
+# Make a dataframe with word frequencies and a wordcloud:#
+# if there are too few results stop and throw an error message:#
+if(no.res < 5){stop("\n\nThere are less than 5 Results, a word cloud may be useless!")}#
+#
+corpus <- Corpus(DataframeSource(result[, 1:3]))#
+corpus <- tm_map(corpus, removePunctuation)#
+corpus <- tm_map(corpus, tolower)#
+corpus <- tm_map(corpus, function(x)removeWords(x, stopwords()))#
+tdm <- TermDocumentMatrix(corpus)#
+m <- as.matrix(tdm)#
+v <- sort(rowSums(m), decreasing = TRUE)#
+d <- data.frame(word = names(v), freq = v)#
+#
+# Remove strings with numbers:#
+d <- d[-grep("[1-9]", d$word), ]#
+#
+# Remove unwanted rubbish (..to be extended?):#
+rubbish <- c("htmls", "hellip", "amp", "quot")#
+d <- d[d$word%in%rubbish == FALSE, ]#
+#
+# Show only frequencies larger than 5:#
+print(d[d$freq > 5, ])#
+cat(paste("\n\nNumber of titles submitted =", length(match_h3)))#
+#
+# Compare retrieved titles and no. of results pulled from first webpage:#
+cat(paste("\n\nNumber of results as retrieved from first webpage =", no.res))#
+#
+cat("\n\nBe aware that sometimes titles in Google Scholar outputs#
+are truncated - that is why, i.e., some mandatory intitle-search#
+strings may not be contained in all titles\n")#
+#
+# Print wordcloud:#
+wordcloud(d$word, d$freq, random.order = F)#
+#
+return(d)#
+}
+search.str <- "%22data-intensive+systems%22+AND+%22software+testing%22"#
+d <- GScholarScraper(search.str, write.table = FALSE)
+titles <- c("Data-Intensive System" , "software testing")#
+#
+library("rcrossref")#
+out <- cr_journals(titles[2])#
+doi <- sub("http://dx.doi.org/", "", out$doi[1])
+doi
+out <- cr_searches(titles[2])
+cr_search
+out <- cr_journals(titles[2])
+install.packages("RColorBrewer")#
+library("RColorBrewer")#
+dataFile<-read.csv("~/Mirai/ExperimentBZ/BZ20min.csv", header= TRUE,sep=",")#
+inputFile<-read.csv("~/Mirai/ExperimentBZ/OperationalProfileData.csv", header= TRUE,sep=",")#
+usersLoad<-inputFile[,1]#
+accessCount<-inputFile[,2]#
+scaleFactor<-2.5#
+usersLoadScaled<-floor(scaleFactor*usersLoad)#
+accessFrequency<-accessCount/sum(accessCount)#
+byFifty<-which(usersLoadScaled %% 50 == 0)#
+binProb<-c()#
+for(i in 1:length(byFifty)){#
+	if(i==1){#
+		binProb[i]<-sum(accessFrequency[1:byFifty[i]])#
+	}else{#
+		binProb[i]<-sum(accessFrequency[(byFifty[i-1]+1):byFifty[i]])#
+	}#
+}#
+mySettings<-as.data.frame(matrix(nrow=nrow(dataFile)%/% 3, ncol=5))#
+for(i in 0:((nrow(dataFile)%/% 3)-1)){#
+    mySettings[i+1,1:5]<-dataFile[1+3*i,1:5]#
+}
+mySettings
+colnames(mySettings)<-colnames(dataFile[,1:5])
+mySettings
+avgVectorB<-data.frame(c(mySettings[1,],dataFile[1,7:(6+noMicroServices)]))#
+#
+SDVectorB<-data.frame(c(mySettings[1,],dataFile[2,7:(6+noMicroServices)]))#
+#
+threshold<-data.frame(c(mySettings[1,],avgVectorB[1,6:(5+noMicroServices)]+3*SDVectorB[1,6:(5+noMicroServices)]))
+avgVectorB
+SDVectorB
+threshold
+mixB<-data.frame(c(mySettings[1,],dataFile[3,7:(6+noMicroServices)]))
+mixB
+dataFile[3,7:(6+noMicroServices)]
+dataset <- read.csv("~/unibz/Dropbox/Courses2018_2019/VerificationValidation/Lab/03Assignment/RawData.xlsx", header=TRUE, sep = ",")
+dataset <- read.csv("~/unibz/Dropbox/Courses2018_2019/VerificationValidation/Lab/03Assignment/RawData.xlsx", header=TRUE, sep = ";")
+dataset <- read.csv("~/unibz/Dropbox/Courses2018_2019/VerificationValidation/Lab/03Assignment/RawData.csv", header=TRUE, sep = ";")
+dates <- data.frame(dataset$Created)#
+dates$newdate <- strptime(as.character(dates$dataset.Created), "%d/%m/%Y %H:%M")#
+#
+dates$formatted <- format(dates$newdate, "%d-%m-%Y")#
+dates$newdateformatted <- strptime(as.character(dates$formatted), "%d-%m-%Y")#
+dates$test <- as.POSIXct(dates$newdateformatted,format="%d/%m/%Y T %H:%M:%S")#
+dates$count <- seq.int(nrow(dates))#
+#
+data <- data.frame(dataset$Created)#
+plot(dates$test,dates$count, xlab="Time", ylab="Failures")#
+line <- lm(dates$count ~ dates$test)#
+summary(line)#
+abline(line)
+dataset <- read.csv("~/unibz/Dropbox/Courses2018_2019/VerificationValidation/Lab/03Assignment/RawData.csv", header=TRUE, sep = ",")#
+dates <- data.frame(dataset$Created)#
+dates$newdate <- strptime(as.character(dates$dataset.Created), "%d/%m/%Y %H:%M")#
+#
+dates$formatted <- format(dates$newdate, "%d-%m-%Y")#
+dates$newdateformatted <- strptime(as.character(dates$formatted), "%d-%m-%Y")#
+dates$test <- as.POSIXct(dates$newdateformatted,format="%d/%m/%Y T %H:%M:%S")#
+dates$count <- seq.int(nrow(dates))#
+#
+data <- data.frame(dataset$Created)#
+plot(dates$test,dates$count, xlab="Time", ylab="Failures")#
+line <- lm(dates$count ~ dates$test)#
+summary(line)#
+abline(line)
+dates$newdate
+dates$formatted
+dates$newdateformatted
+dates$newdate
+dates$newdate1 <- strptime(as.character(dates$dataset.Created), "%d/%m/%Y)
+)
+dates$newdate1 <- strptime(as.character(dates$dataset.Created), "%d/%m/%Y"))
+dates$newdate1 <- strptime(as.character(dates$dataset.Created), "%d/%m/%Y")
+dates$newdate1
+dates$diff<-dates$newdate1-dates$newdate1[1]
+dates$diff
+dates$newdate1[1]
+?diff
+dates$newdate1[1]
+dates$newdate
+dataset$Created
+dates$newdate1 <- strptime(dates$dataset.Created, "%d/%m/%Y")
+dates$newdate1
+?date
+dates$newdate1 <- format(dates$dataset.Created, "%d/%m/%Y")
+?format
+??date
+dates$newdate1 <- as.date(dates$dataset.Created, "%d/%m/%Y")
+dates$newdate1 <- as.Date(dates$dataset.Created, "%d/%m/%Y")
+dates$newdate1
+dates$dataset.Created
+dates$newdate1 <- format(dates$dataset.Created, format="%d %m %y")
+dates$newdate1
+dates$newdate <- strptime(as.character(dates$dataset.Created), "%d %m %y")
+dates$newdate
+? strptime
+dates$diff<-dates$newdate1-dates$newdate1[1]
+dates$newdate1 <- as.date(format(dates$dataset.Created, format="%d %m %y"))
+?as.date
+dates$newdate1 <- format(dates$dataset.Created, format="%d %m %y")
+?date
+dates$newdate1 <- as.Date(dates$dataset.Created, "%d %m %y")
+dates$newdate1
+dates$dataset.Created
+dates$newdate1 <- as.Date(format(dates$dataset.Created, format="%d %m %y"))
+dates$dataset.Created
+dates
+dates$diff<-dates$dataset.Created-dates$dataset.Created[1]
+#change the wd if needed#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(analysisFolder,"NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(originalDirectory)#
+setwd(file.path(analysisFolder,"Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(analysisFolder,"NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(originalDirectory)#
+setwd(file.path(analysisFolder,"Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path(datasetsFolder,"NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)
+library(stringr)#
+library(gridExtra)#
+library(grid)
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(analysisFolder,"NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(originalDirectory)#
+setwd(file.path(analysisFolder,"Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path(datasetsFolder,"NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)
+rm(list=ls())#
+#
+#change the wd if needed#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path("NoAttack"))
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(originalDirectory)
+setwd(file.path(originalDirectory,analysisFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)
+fileFolderNA<-"NoAttack" #
+fileFolderA<-"Attack"#
+#
+getwd()
+performAnalysis<-function(fileFolder, case){#
+#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i]<-fileName#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable, rows=NULL)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+setwd(originalDirectory)#
+performAnalysis(fileFolderA, fileNamesA[1])#
+setwd(originalDirectory)#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+setwd(originalDirectory)#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+setwd(originalDirectory)#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+fileFolder<-fileFolderA
+case<-fileNamesA[1]
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))
+setwd(originalDirectory)
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i]<-fileName#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable, rows=NULL)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])
+setwd(originalDirectory)
+setwd(file.path(originalDataFolder, fileFolder))
+myFile<-list.files(getwd(),full.names = F, pattern= case)
+no_col<-max(count.fields(myFile))
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))
+dataset
+t<-"Section:"
+factors<-which(dataset[,1]==t)
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))
+numberOfVariables<-length(names(datasets))
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]
+myList<-list()
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))
+colnames(myTable)<-names(datasets)[-c(1,2)]
+rownames(myTable)<-names
+names
+myTable
+names(datasets)[-c(1,2)]
+names[-1]
+p<-tableGrob(myTable)
+grid.arrange(p)
+myTable
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]
+p<-tableGrob(myTable)
+grid.arrange(p)
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i]<-fileName#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])
+performAnalysis(fileFolderA, fileNamesA[1])
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i]<-fileName#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}
+i
+i=6
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))
+}
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector
+fileName
+colnames(myTable)
+colnames(myTable)[i]<-fileName
+i
+myTable
+p
+grid.arrange(p)
+names
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]
+colnames(myTable)
+i=3
+myList[[i-2]]
+myList
+myList[[i-2]]<-as.data.frame(datasets[i])
+myList[[i-2]]
+datasets[2]
+names
+myTable
+colnames(myTable)
+colnames(myTable)[i]
+colnames(myTable)[i-2]
+colnames(myTable)[i-2]<-fileName
+colnames(myTable)[i-2]
+myTable
+fileName
+gsub("[^::A-Z::]","", filename)
+gsub("[^::A-Z::]","", fileName)
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCArd and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])
+paste(as.character(unlist(myList[[i-2]][1,-1])),collapse="")
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))
+temp
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp), sep="")
+)
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp), sep=""))
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep=""))
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")
+fileName
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-meanVector#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])
+myTable[,i-2]<-signif(meanVector,digits=5)
+myTable[,i-2]
+myTable[,i-2]<-round(meanVector,digits=2)
+myTable[,i-2]
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+##Split output dataset of Benchflow into datasets each for one performance measure. For each dataset and each microservice, it plots the time series over time  #
+#Author: Barbara Russo, 2019#
+library(stringr)#
+library(gridExtra)#
+library(grid)#
+# Dataset analysed#
+# Best configuration:#
+# without attack #
+# Configuration: memoria 0.5 CPU 0.25 Replica 2 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.25 Replica 2 100 users#
+#
+# Worst configuration:#
+# without attack #
+# Configuration: memoria 1 CPU 0.25 Replica 1 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.5 Replica 4 100 users#
+#
+###
+#
+#clean console variables#
+rm(list=ls())#
+#
+#change the wd if needed#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory,analysisFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+#
+#with no attack. Uncomment the line  for the different case (Attack or no Attack) #
+fileFolderNA<-"NoAttack" #
+fileFolderA<-"Attack"#
+#
+getwd()#
+#
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])#
+#
+#change the method to include or exclude the to microservices#
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}#
+install.packages("reader")#
+library("reader")#
+dataFileFolder<-file.path(getwd(),"AvgDataSets")#
+setwd(dataFileFolder)#
+#
+avgFiles<-list.files(path= dataFileFolder)#
+#
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)#
+#
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")#
+source("computeThreshold.R")
+##Split output dataset of Benchflow into datasets each for one performance measure. For each dataset and each microservice, it plots the time series over time  #
+#Author: Barbara Russo, 2019#
+library(stringr)#
+library(gridExtra)#
+library(grid)#
+# Dataset analysed#
+# Best configuration:#
+# without attack #
+# Configuration: memoria 0.5 CPU 0.25 Replica 2 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.25 Replica 2 100 users#
+#
+# Worst configuration:#
+# without attack #
+# Configuration: memoria 1 CPU 0.25 Replica 1 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.5 Replica 4 100 users#
+#
+###
+#
+#clean console variables#
+rm(list=ls())#
+#
+#change the wd if needed#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory,analysisFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+#
+#with no attack. Uncomment the line  for the different case (Attack or no Attack) #
+fileFolderNA<-"NoAttack" #
+fileFolderA<-"Attack"#
+#
+getwd()#
+#
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])#
+#
+#change the method to include or exclude the to microservices#
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}#
+install.packages("reader")#
+library("reader")#
+dataFileFolder<-file.path(getwd(),"AvgDataSets")#
+setwd(dataFileFolder)#
+#
+avgFiles<-list.files(path= dataFileFolder)#
+#
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)#
+#
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")#
+source("computeThreshold.R")
+##Split output dataset of Benchflow into datasets each for one performance measure. For each dataset and each microservice, it plots the time series over time  #
+#Author: Barbara Russo, 2019#
+library(stringr)#
+library(gridExtra)#
+library(grid)#
+# Dataset analysed#
+# Best configuration:#
+# without attack #
+# Configuration: memoria 0.5 CPU 0.25 Replica 2 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.25 Replica 2 100 users#
+#
+# Worst configuration:#
+# without attack #
+# Configuration: memoria 1 CPU 0.25 Replica 1 100 users#
+#
+# with attack #
+# Configuration: memoria 1 CPU 0.5 Replica 4 100 users#
+#
+###
+#
+#clean console variables#
+rm(list=ls())#
+#
+#change the wd if needed#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory,analysisFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+#
+#with no attack. Uncomment the line  for the different case (Attack or no Attack) #
+fileFolderNA<-"NoAttack" #
+fileFolderA<-"Attack"#
+#
+getwd()#
+#
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])#
+#
+#change the method to include or exclude the to microservices#
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}#
+install.packages("reader")#
+library("reader")#
+dataFileFolder<-file.path(getwd(),"AvgDataSets")#
+setwd(dataFileFolder)#
+#
+avgFiles<-list.files(path= dataFileFolder)#
+#
+find.file("computeThreshold.R", dir = originalDirectory, dirs = NULL)#
+#
+dataFile<-read.csv(avgFiles[2], header=T, sep=",")#
+source("computeThreshold.R")
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()
+fileNamesA
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")
+fileNamesNA
+analysisFolder<-subset(folders, folders=="Analysis" )
+analysisFolder
+setwd(file.path(originalDirectory,analysisFolder))
+getwd()
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)
+dir.create(file.path("NoAttack"),showWarnings=T)
+setwd(file.path("NoAttack"))
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)
+dir.create(fileNamesNA[1], showWarnings=T)
+setwd(file.path(originalDirectory,analysisFolder))
+setwd(file.path("Attack"))
+dir.create(fileNamesA[1], showWarnings=F)
+dir.create(fileNamesA[2], showWarnings=F)
+setwd(originalDirectory)
+datasetsFolder<-subset(folders, folders=="Datasets" )
+dir.create(file.path("NoAttack"),showWarnings=F)
+dir.create(file.path("Attack"),showWarnings=F)
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)
+fileFolderNA<-"NoAttack"
+fileFolderA<-"Attack"
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])
+performAnalysis(fileFolderA, fileNamesA[2])
+performAnalysis(fileFolderNA,  fileNamesNA[1])
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+#ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+#tables without getCard and Login#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+#tables without getCard and Login#
+#ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)#
+}
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+rm(list=ls())#
+#
+#change the wd if needed#
+#setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/100Users")#
+setwd("~/Research/Dropbox/OverleafGit/Microservices/SingleExperimentAnalysis/200Users")#
+originalDirectory<-getwd()#
+folders<-list.files(path= originalDirectory)#
+#
+#set up the folders for saving the output#
+originalDataFolder<-subset(folders, folders=="OriginalData" )#
+setwd(file.path(originalDataFolder , "Attack"))#
+fileNamesA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+getwd()#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder , "NoAttack"))#
+fileNamesNA<-str_remove(list.files(getwd(),full.names = F ), ".txt")#
+analysisFolder<-subset(folders, folders=="Analysis" )#
+setwd(file.path(originalDirectory,analysisFolder))#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory,analysisFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+datasetsFolder<-subset(folders, folders=="Datasets" )#
+dir.create(file.path("NoAttack"),showWarnings=F)#
+dir.create(file.path("Attack"),showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("NoAttack"))#
+dir.create(fileNamesNA[1], showWarnings=F)#
+dir.create(fileNamesNA[2], showWarnings=F)#
+setwd(file.path(originalDirectory, datasetsFolder))#
+setwd(file.path("Attack"))#
+dir.create(fileNamesA[1], showWarnings=F)#
+dir.create(fileNamesA[2], showWarnings=F)#
+setwd(originalDirectory)#
+fileFolderNA<-"NoAttack" #
+fileFolderA<-"Attack"#
+#
+getwd()#
+#
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+#ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+#tables without getCard and Login#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")#
+#plot without getCard and Login#
+#plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+#for(j in 3:5){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+#for(j in 8:(ncol(myList[[i-2]])-1)){#
+#	lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+#}#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)#
+#tables without getCard and Login#
+#ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)#
+}
+#Select the original dataset for the best or worst configuration#
+#Attack#
+performAnalysis(fileFolderA, fileNamesA[1])#
+performAnalysis(fileFolderA, fileNamesA[2])#
+#No attack#
+performAnalysis(fileFolderNA,  fileNamesNA[1])#
+performAnalysis(fileFolderNA,  fileNamesNA[2])
+performAnalysis<-function(fileFolder, case){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+#
+if(reduced=="No"){#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")}else{#
+#plot without getCard and Login#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")}#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+if(reduced=="No"){#
+	ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)}else{#
+#tables without getCard and Login#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)}#
+}
+performAnalysis<-function(fileFolder, case, reduced){#
+setwd(originalDirectory)#
+setwd(file.path(originalDataFolder, fileFolder))#
+myFile<-list.files(getwd(),full.names = F, pattern= case)#
+no_col<-max(count.fields(myFile))#
+dataset<- read.delim(myFile, header=F, sep = "", col.names=c(1:no_col))#
+#
+#Split the original Benchflow dataset into subsets, each for one measurement#
+t<-"Section:"#
+factors<-which(dataset[,1]==t)#
+datasets <-split(dataset, cumsum(1:nrow(dataset) %in% factors))#
+numberOfVariables<-length(names(datasets)) #
+#
+#Variables names. Time and microservices.#
+names<-as.character(unlist(as.data.frame(datasets[3])[3,]))[-2]#
+#print(names)#
+myList<-list()#
+myTable<-matrix(nrow=length(names)-1,ncol=(numberOfVariables-2))#
+colnames(myTable)<-names(datasets)[-c(1,2)]#
+rownames(myTable)<-names[-1]#
+for(i in 3:numberOfVariables){#
+#Data pre-process	#
+myList[[i-2]]<-as.data.frame(datasets[i])	#
+colnames(myList[[i-2]])<-names#
+# The name of he file is compounded by the values of the first row.#
+temp<-gsub("WebDriver",'',paste(as.character(unlist(myList[[i-2]][1,-1])),collapse=""))#
+fileName<-paste(gsub("[[:punct:]]", "", str_squish(temp)), sep="")#
+#Paths to Datasets and Analyis folders#
+measurefilePath<-paste(file.path(originalDirectory, datasetsFolder, fileFolder,case, fileName), ".csv", sep="")#
+#
+if(reduced=="No"){#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), ".pdf", sep="")}else{#
+#plot without getCard and Login#
+plotFilePath<-paste(file.path(originalDirectory, analysisFolder, fileFolder, case, fileName), "_reduced_.pdf", sep="")}#
+#Save a dataset, each for one measure#
+myList[[i-2]]<-myList[[i-2]][-c(1:4),]#
+myList[[i-2]]<-myList[[i-2]][!apply(myList[[i-2]] == "", 1, all),]#
+write.csv(myList[[i-2]],file= measurefilePath)#
+#
+#Plot time series, each for one microservice#
+pdf(plotFilePath, width = 12, height = 6)#
+max_x<-max(as.numeric(as.vector(myList[[i-2]]$Time)), na.rm=TRUE)#
+max_vector<-c()#
+meanVector<-c()#
+#for(s in c(1:4,7:19)){#
+for(s in 1:(length(names)-1)){#
+max_temp<-max(as.numeric(as.vector(myList[[i-2]][,s+1])), na.rm=TRUE)#
+max_vector[s]<-max_temp#
+meanVector[s]<-mean(as.numeric(as.vector(myList[[i-2]][,s+1])))#
+}#
+max_y<-max(max_vector, na.rm=TRUE)#
+myTable[,i-2]<-round(meanVector,digits=2)#
+colnames(myTable)[i-2]<-gsub("[^::A-Z::]","", fileName)#
+#print(colnames(myList[[i-2]]))#
+col<-rainbow(19)#
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)#
+plot(as.numeric(as.vector(myList[[i-2]]$Time)),as.numeric(as.vector(myList[[i-2]][,2])), type="l", cex = 0.5, col=col[1], pch = "*", xlim=c(0,max_x+max_x/100), ylim=c(0,max_y+max_y/100), xlab="time", ylab=fileName, main=case)#
+abline(v=180, col="grey")#
+v<-180+1200#
+abline(v=v, col="blue")#
+ for(j in 3:(ncol(myList[[i-2]])-1)){#
+	 lines(as.vector(myList[[i-2]]$Time),as.numeric(as.vector(myList[[i-2]][,j])), col=col[j-1], cex = 0.5, type="l")#
+ }#
+legend('topright', names[-1], col=col, pch=21, inset=c(-0.2,0))#
+graphics.off()#
+}#
+p<-tableGrob(myTable)#
+grid.arrange(p)#
+if(reduced=="No"){#
+	ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table.pdf', sep=""),p)}else{#
+#tables without getCard and Login#
+ggplot2::ggsave(paste(file.path(originalDirectory ,analysisFolder, fileFolder, case),'_table_reduced.pdf', sep=""),p)}#
+}
+reduced==T
+reduced<-T
+reduced==T

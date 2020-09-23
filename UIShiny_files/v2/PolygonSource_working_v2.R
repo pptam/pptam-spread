@@ -31,16 +31,32 @@ computeRelativeMass<-function(threshold, avg, mixTemp){
   mix<-as.data.frame(matrix(nrow=nrow(usedSettings), ncol=ncol(mixTemp)))
   for(j in 1:nrow(passCriteria)){
     mix[j,]<-mixTemp[j,]
-    for(i in 6:(5+noMicroServices)){
+    for(i in NumOfLabels:(NumOfLabels -1 +noMicroServices)){
       if(passCriteria[j,i]>threshold[i]){mix[j,i]<-0}
     }
-    relativeMass[j]<-sum(mix[j,6:(5+noMicroServices)])
+    relativeMass[j]<-sum(mix[j, NumOfLabels:(NumOfLabels -1+noMicroServices)])
   }
   return(relativeMass)
 }
 #################################################################
 # end computeRelativeMass
 ###########################################################################
+##########################################################################################
+# aggregateMassByUser
+# this is a subroutine that returns the data for a unique setting.
+# inputs, idomain = domain index
+#         tempData = database of all Users, infor, and probability Masses 
+#         startcol = number where col starts of unique info
+#         endcol  = number  where col ends of unique info
+# return:   for one domainMtricList
+#################################################
+aggregateMassByUser <- function(idomain,tempData,mySettingsUnique,startcol,endcol,masscol) {
+  temp2 <- NULL
+  # this statement finds all the matching by unique setting and passes the row numbers as a vector
+  vector <- which(apply(tempData[,startcol:endcol],1,function(x) sum( x == mySettingsUnique[idomain,]) == endcol-startcol+1))
+  temp2 <- tempData[vector,]
+  return(temp2)
+  }    
 
 ###############################################################################################
 # Function ComputeDomainMetrics
@@ -57,16 +73,21 @@ computeDomainMetrics<-function(usedSettings, relativeMass, aggregatedValues ){
   }
   tempData$absoluteMass<-absoluteMass
   
-  mySettingsUnique<-unique(tempData[3:5])
+  mySettingsUnique<-unique(tempData[3:NumColConf])
+  ########################################################################################################
+  ### make a list of the domains based on the n number of possible settings that are in columns 3,4, and 5
+  ### There are 12 possibilities, 2 Memories, 2 CPUs, and 3 CartReplicas, hence 12
+  ########################################################################################################
   set<-list()
   domainMetricList<-list()
   for(i in 1:nrow(mySettingsUnique)){
-    temp2<-tempData[which(tempData[,3] == mySettingsUnique[i,1]&tempData[,4] == mySettingsUnique[i,2]&tempData[,5] == mySettingsUnique[i,3]),]
+    temp2 <- aggregateMassByUser(i,tempData,mySettingsUnique,3,NumColConf,NumOfLabels)  # arguments inputdata,start col, end col and mass column    
+
+    # adding an extra row for the 0,0 plot point for the polygon
     set[[i]] <- temp2 %>% add_row(relativeMass=0,absoluteMass=0,Users=0)
-    domainMetricList[[i]]<-set[[i]][,c(2,7)][order(set[[i]][,c(2,7)][,1]),]
+    # add to list
+    domainMetricList[[i]]<-set[[i]][,c(2,NumOfLabels+1)][order(set[[i]][,c(2,NumOfLabels+1)][,1]),]
   }
-class(tempData[which(tempData[,3] == mySettingsUnique[i,1]&tempData[,4] == mySettingsUnique[i,2]&tempData[,5] == mySettingsUnique[i,3]),])
-  
     return(domainMetricList)
 }
 ####################################################################################
@@ -80,13 +101,17 @@ class(tempData[which(tempData[,3] == mySettingsUnique[i,1]&tempData[,4] == mySet
 ######################################################################################
 computeCumulativeDomainMetric<-function(usedSettings, relativeMass, aggregatedValues){
   tempData<-computeDomainMetricsAll(usedSettings, relativeMass, aggregatedValues )
-  mySettingsUnique<-unique(tempData[3:5])
+
+    mySettingsUnique<-unique(tempData[3:NumColConf])
   mySettingsUnique$domainMetric<-0
+  mySettingsUnique
   for(i in 1:nrow(mySettingsUnique)){
-    mySettingsUnique[i,4]<-round(sum(tempData[which(tempData[,3] == mySettingsUnique[i,1]&tempData[,4] == mySettingsUnique[i,2]&tempData[,5] == mySettingsUnique[i,3]),"absoluteMass"]),4)
+    # >>>>NumColConf-2)]) == NumColConf-2)  <<<< you substract 2 because we take out -- 1)ID and 2)Users
+    mySettingsUnique[i,NumColConf-1]<-round(sum(tempData[which(apply(tempData[,3:NumColConf],1,function(x) sum( x == mySettingsUnique[i,1:(NumColConf-2)]) == NumColConf-2)),"absoluteMass"]),4)
+#    mySett
   }
   domainMetric<-mySettingsUnique
-  return(domainMetric)
+return(domainMetric)
 }
 #####################################################
 # end of computeCumulativeDomainMetric
@@ -139,7 +164,7 @@ if(w<4){myLevels<-5}else{myLevels<-10}
 max.num.users <-myMax  # this is 300
 num.load.levels <- myLevels  # either 5 or 10
 ######################################################
-num.load.levels
+#num.load.levels
 #scale the load
 max.requests <- max(project.count.data$requests)  # from wikipedia-profile-de
 scale.factor <- max.num.users / max.requests
@@ -154,23 +179,27 @@ num.users.hist <- hist(scaled.number.of.users,
                        breaks = num.load.levels,
                        col = "darkgray", border = "white",
                        xlab = "scaled number of users", main = "Histogram of scaled number of users", plot=F)     
-
+#num.users.hist
 num.users.hist$frequency<-num.users.hist$counts / sum(num.users.hist$counts)
 
 #reformat the above number into a Table format
 frequencies.of.occurrence <- data.frame(
-  scaled.number.of.users = num.users.hist$breaks,
-  frequency.of.occurrence = c(0,num.users.hist$frequency)
-)
+#  scaled.number.of.users = num.users.hist$breaks,
+#  frequency.of.occurrence = c(0,num.users.hist$frequency)
+  sampled.load.tests = num.users.hist$breaks,
+  contrib.to.domain.metrics = c(0,num.users.hist$frequency)
+  
+  )
 # this aggregatedValuesWikipedia is a rescaled probability by 0-50,50-100,100-150,150-200,200-250,250-300 as .151, etc.
 aggregatedValuesWikipedia<-frequencies.of.occurrence
+#aggregatedValuesWikipedia
 #################################################################
 # computeThreshold.R
 #################################################################
 
 #Identify selected configurations from dataFile which is the first 5 columns of benchflow_output.csv
-mySettings <-unique(dataFile[,1:5])
-nrow(mySettings)
+mySettings <-unique(dataFile[,1:NumColConf])
+#nrow(mySettings)
 #ID Users Memory  CPU       CartReplicas
 #1    1   150    1.0 0.50            2
 #4    2   300    0.5 0.25            4
@@ -182,17 +211,19 @@ nrow(mySettings)
 #....
 
 ############################################
-#mySettingsUnique<-unique(tempData[3:5])
-
+#unique(mySettings[3:6])
+#mySettingsUnique<-unique(dataFile[,3:6])
+#mySettingsUnique
 # computeThreshold.R
 #THRESHOLD
 #Define the threshold for each service. The threshold is a vector computed as avg+3*SD for the configuration with Users=2, Memory=4, CPU=1, CartReplica=1   
-# number of MicroServices are columns minus 6
-noMicroServices<-ncol(dataFile)-6
-
-# setting up thresholds for Users = 2 which is avg + 3 * SD for each of the types
+# number of MicroServices are columns minus NumOfLabels = 6
+noMicroServices<-ncol(dataFile)-NumOfLabels
+################################################################################################
+# setting up thresholds for Users = 2 which is the no load case, avg + 3 * SD for each of the types
+###############################################################################################
 tempBench<-dataFile[dataFile$Users==2,]
-nrow(tempBench)
+nrow(tempBench)  # should be 3
 #ID Users Memory CPU CartReplicas                            Metric createOrder basket getCatalogue getItem getCart
 #205 69     2      4   1            1                         Avg (sec)      0.0120 0.0020       0.0050  0.0060  0.0140
 #206 69     2      4   1            1                          SD (sec)      0.0060 0.0000       0.0010  0.0070  0.0200
@@ -207,12 +238,12 @@ nrow(tempBench)
 #207     0.0129  0.0129      0.0442
 
 benchSettings<-mySettings[mySettings$Users==2,]
-benchSettings
+#benchSettings
 #    ID  Users Memory  CPU  CartReplicas
 #205 69     2      4   1            1
-avgVectorB<-tempBench[tempBench$Metric=="Avg (sec)",][,-c(1:6)]
-SDVectorB<- tempBench[tempBench$Metric=="SD (sec)",][,-c(1:6)]
-mixB<-tempBench[tempBench$Metric=="Mix % (take failure into account)",][,-c(1:6)]
+avgVectorB<-tempBench[tempBench$Metric=="Avg (sec)",][,-c(1:NumOfLabels)]
+SDVectorB<- tempBench[tempBench$Metric=="SD (sec)",][,-c(1:NumOfLabels)]
+mixB<-tempBench[tempBench$Metric=="Mix % (take failure into account)",][,-c(1:NumOfLabels)]
 threshold<-data.frame(benchSettings,avgVectorB+3*SDVectorB)
 #threshold
 #threshold  # thresholds by microservices
@@ -221,17 +252,20 @@ threshold<-data.frame(benchSettings,avgVectorB+3*SDVectorB)
 #SELECT DATA FROM FILE
 #Exclude case with user = 2 from dataFile and check whether each service pass or fail: avg<threshold (Pass). 
 #Select relevant rows
-nrow(mySettings[!mySettings$Users==2,])
+#nrow(mySettings[!mySettings$Users==2,])
 usedSettings<-mySettings[!mySettings$Users==2,]
 
-usedDataFile<-dataFile[!dataFile$Users==2,]
-avg<-dataFile[usedDataFile$Metric=="Avg (sec)",]
+usedDataFile<-dataFile[dataFile$Users>2,]
+#usedDataFile$Users
+avg<-dataFile[usedDataFile$Metric=="Avg (sec)" & dataFile$Users>2,]
+#avg
+
 #nrow(avg)
 #nrow(usedDataFile)
 # these are the average, sd and mixTemp that are in the BenchOutput dataset
 #average number of access
-#usedDataFile[usedDataFile$Metric=="Avg (sec)",-6]
-avg<-avg[,-6]
+#usedDataFile[usedDataFile$Metric=="Avg (sec)",-NumMetricCol]
+avg<-avg[,-NumMetricCol]  # -NumMetricCol gets rid of metric column
 #nrow(avg)
 #avg
 #ID Users Memory  CPU CartReplicas createOrder basket getCatalogue getItem getCart  login getOrders catalogue  home
@@ -242,16 +276,17 @@ avg<-avg[,-6]
 #13   5   300    0.5 0.25            2       0.053  0.002        0.414   0.417   0.512  0.693     0.056     0.002 0.002
 
 #standard deviation of access
-SD<-usedDataFile[usedDataFile$Metric=="SD (sec)",-6]
-#This is the frequency of access to a microservice
-mixTemp<-usedDataFile[usedDataFile$Metric=="Mix % (take failure into account)",-6]
+SD<-usedDataFile[usedDataFile$Metric=="SD (sec)",-NumMetricCol]
+#This is the  to a delta number of microservice
+mixTemp<-usedDataFile[usedDataFile$Metric=="Mix % (take failure into account)",-NumMetricCol]
 ################################################################################
 # end of computeThreshold.R
 ################################################################################
 #nrow(mixTemp)
-# compute using function relative Mass
-relativeMass<-computeRelativeMass(threshold, avg, mixTemp)  
+# compute using function relativeMass
 #relativeMass # relative mass for the all the different configuations by the tests
+relativeMass<-computeRelativeMass(threshold, avg, mixTemp)  
+#relativeMass
 #[1] 0.5304 0.6048 0.2262 0.9999 0.2262 1.0001 0.2258 1.0001 1.0000 0.7480 0.3918 0.7474 0.2260 0.5305 0.2262 0.6175 1.0001
 #[18] 1.0000 0.5300 0.9999 1.0000 0.2262 0.2260 0.1959 0.5623 0.2259 1.0003 0.9998 0.5304 0.9999 0.2258 0.9999 0.2261 0.9998
 #[35] 0.7484 0.2261 0.2259 0.2134 0.4350 0.6440 0.2262 1.0002 0.2263 0.7485 1.0003 0.5917 0.9999 0.2261 0.7497 0.2261 0.9999
@@ -260,7 +295,7 @@ relativeMass<-computeRelativeMass(threshold, avg, mixTemp)
 
 # compute using function doman
 domainMetricList<-computeDomainMetrics(usedSettings, relativeMass, aggregatedValuesWikipedia)
-#domainMetricList
+#domainMetricList[[4]]
 # makes list of domain metrics by absoluteMass by the 12 different Configuration
 #[[1]]
 #    Users absoluteMass
@@ -274,9 +309,7 @@ domainMetricList<-computeDomainMetrics(usedSettings, relativeMass, aggregatedVal
 myL<-list()
 myValue<-c()
 
-domainMetricList[[1]]
-
-for(i in 1:nrow(unique(usedSettings[,3:5]))){
+for(i in 1:nrow(unique(usedSettings[,3:NumColConf]))){
  #   print(domainMetricList[[i]][,2]>=aggregatedValuesWikipedia[,2])
   myL[[i]]<-domainMetricList[[i]][,2]>=aggregatedValuesWikipedia[,2]
   myValue[i]<-min(which(myL[[i]] %in% FALSE))-1
@@ -284,10 +317,11 @@ for(i in 1:nrow(unique(usedSettings[,3:5]))){
 #myValue is 2 2 2 3 2 3 2 3 3 2 2 3
 # myL is [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE  TRUE
 bestApproachingLine<-which.max(myValue)
-#bestApproachingLine  # this is 4
-
+bestApproachingLine  # this is 4
+#myValue
 domainMetric<-computeCumulativeDomainMetric(usedSettings, relativeMass, aggregatedValuesWikipedia)
-bestDMLine<-which.max(domainMetric[,4])
+domainMetric
+bestDMLine<-which.max(domainMetric[,NumColConf-1])
 #bestDMLine  # this is 4
 #######################################################
 # SET UP FOR Sensitvity
@@ -348,10 +382,13 @@ scale <- append(scale, scaleIntegers)
 ###########################################################
 #  computeSensitivityPerConfiguraton
 #############################################################
-sortedDomainMetric <- domainMetric[order(domainMetric[, 1], domainMetric[, 2], domainMetric[, 3]), ]
-k <- which(sortedDomainMetric[, 4] == max(sortedDomainMetric[, 4]))
+# sort by variables in order no matter the number of variables
+sortedDomainMetric <- domainMetric %>% arrange()
+
+# (NumColConf-1) is the last column in 
+k <- which(sortedDomainMetric[, ncol(sortedDomainMetric)] == max(sortedDomainMetric[, ncol(sortedDomainMetric)]))
 # k is the position of the maximum Domain Metric
-j<-min(which(domainMetric[,4]==sortedDomainMetric[k[1], 4]))
+j<-min(which(domainMetric[,(NumColConf-1)]==sortedDomainMetric[k[1], (NumColConf-1)]))
 # j is the position in the unsorted list
 #sortedDomainMetric
 #Memory  CPU CartReplicas domainMetric

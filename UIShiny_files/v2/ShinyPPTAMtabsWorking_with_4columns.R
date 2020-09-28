@@ -69,7 +69,7 @@ dataFile <- BenchFlowTemp
 # MAKE CHANGES STARTING HERE
 #
 # CHANGE THIS ONE BELOW  # select statement has to match the column headings
-unique_data <- dataFile %>%  filter(Users != 2) %>% select(Memory,CPU,Service1Replica,Service2Replica) %>% unique
+unique_data <- dataFile %>%  filter(Users != 2) %>% select(Memory,CPU,CartReplicas) %>% unique
 ############END CHANGE###########################################
 domain_n <- nrow(unique_data)   # DON'T CHANGE THIS!!!!
 #############################################################
@@ -80,11 +80,11 @@ domain_n <- nrow(unique_data)   # DON'T CHANGE THIS!!!!
 #############################################################
 # CHANGE THESE TWO BELOW - NumMetricCol and choices
 #############################################################
-NumMetricCol <<- 7  # No. of Metric column -- This column F=6,G=7,H=8
+NumMetricCol <<- 6  # No. of Metric column -- This column F=6,G=7,H=8
 
 
 ###### here's where you make the labels for the UI polygon page.
-choices =paste ("Mem=",format(unique_data$Memory,width=2)," CPU=",format(unique_data$CPU,width=2)," Service1Replicas=",unique_data$Service1Replica," Service2Replicas=",unique_data$Service2Replica, sep = "", collapse = NULL)
+choices =paste ("Mem=",format(unique_data$Memory,width=2)," CPU=",format(unique_data$CPU,width=2)," CartReplicas=",unique_data$CartReplicas, sep = "", collapse = NULL)
 ##########END WITH ALL CHANGES ####################################################
 ##################################################################################
 
@@ -92,7 +92,7 @@ NumOfLabels <<- NumMetricCol   # << makes it a global variable
 
 NumColConf <<- NumOfLabels - 1
 
-myNames<-c("Time",colnames(BenchFlow[-c(1:NumOfLabels)]))
+myNames<-c("Time",colnames(dataFile[-c(1:NumOfLabels)]))
 myNames
 mySettings <-unique(dataFile[dataFile$Users > 2,3:NumColConf]) # take out baseline which is Users = 2
 mySettings

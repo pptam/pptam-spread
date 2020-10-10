@@ -1,2 +1,4 @@
 9/28/2020  'app.R' is a composite of two files: 'ShinyPPTAMtabsWorking_with_4columns.R', which is the calling program, and 'PolygonSource_working_v2.R' is the subroutine.  
 These files are an update that change the pulldown box, and Grid, and make it much easier to change the Domain metric features.
+
+10/10/2020 Made changes to the files.  There is now a 'prep_app.R' and changed 'app.R' and 'to_shiny_app.RData'.  'prep_app.R' makes a file called 'to_shiny_app.RData' which has to be uploaded to the io.shiny site.  This is so the polygons and lines are already preprocessed.  You'll also need to put in a Data folder there that contains the 'ResponseTimesseconds.csv' files one for each of the type of Users (like 50 users, 100 users...).  This is for the second tab in the User interfact.
